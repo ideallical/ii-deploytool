@@ -8,7 +8,7 @@ Project application for deployment, provisioning and local tasks.
 Remote requirements
 ===================
 
-* Debian
+* Debian / Ubuntu
 * Nginx
 * MySQL
 * MySQL-python
@@ -43,10 +43,19 @@ Add a fabfile.py in the root folder of your Django project. An example can be fo
 ::
     https://github.com/ideallical/ii-deploytool/fabfile.py
 
+Add a fabfile_local.py in the root folder of your Django project. An example can be found here:
+
+::
+    https://github.com/ideallical/ii-deploytool/fabfile_local.py
+
+
 Deploy with:
 
 ::
     $ fab deploy:dev
 
 
+Clone remote environment with:
 
+::
+    $ fab clone:live

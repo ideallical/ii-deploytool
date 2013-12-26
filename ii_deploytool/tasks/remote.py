@@ -1,4 +1,5 @@
-from fabric.api import cd, env, run
+import os
+from fabric.api import cd, env, run, get, local
 from fabric.colors import blue, green, red
 from fabric.tasks import Task
 
@@ -10,6 +11,9 @@ class RemoteTask(Task):
         'syncb_migrate': True,
         'resetsh': False,
         'compilejsi18n': False,
+    }
+    local_settings = {
+        'virtualenv_path': None,
     }
 
     def __init__(self, *args, **kwargs):
@@ -23,6 +27,7 @@ class RemoteTask(Task):
                 print(blue("  fab deploy:{}".format(_env)))
         else:
             self.settings.update(self.kwargs['settings'][environment])
+            self.local_settings.update(self.kwargs['local_settings'])
 
             env.host_string = self.settings['host_string']
             env.user = self.settings['user']
@@ -34,6 +39,9 @@ class RemoteTask(Task):
 
     def run_task(self):
         raise NotImplementedError('please implement run_task')
+
+    def _local_env(self, cmd):
+        local("source {0}/bin/activate && {1}".format(self.local_settings['virtualenv_path'], cmd))
 
 
 class Deployment(RemoteTask):
@@ -100,3 +108,62 @@ class SuperVisorUpdate(RemoteTask):
     def run_task(self):
         print(green("Updating supervisor configfiles:"))
         run("sudo supervisorctl update")
+
+
+class Clone(RemoteTask):
+    name = 'clone'
+
+    def run_task(self):
+        print(green("Cloning from environment:"))
+
+        backup_dir = 'ii_temp_backup'
+        backup_path = os.path.join(self.settings['vhost_path'], backup_dir)
+
+        backup_zip = 'ii_temp_backup.zip'
+        backup_zip_path = os.path.join(self.settings['vhost_path'], backup_zip)
+
+        backup_media = 'media'
+        backup_media_path = os.path.join(backup_path, backup_media)
+
+        backup_json = 'fixtures.json'
+        backup_json_path = os.path.join(backup_path, backup_json)
+
+        with cd(self.settings['vhost_path']):
+            run("pwd")
+
+            print(green("Making backup directory:"))
+            run('mkdir {0}'.format(backup_dir))
+
+            print(green("Making fixtures of database:"))
+            self._run_env('python manage.py dumpdata --indent=2 --natural --exclude=contenttypes > {0}'.format(backup_json_path))
+
+            print(green("Copying media files:"))
+            run('cp -r {0} {1}'.format(self.settings['media_root'], backup_media_path))
+
+            print(green("Making a zip out of it:"))
+            run('zip -r {0} {1}'.format(backup_zip_path, backup_dir))
+
+            print(green("Downloading the zip"))
+            get(backup_zip_path, backup_zip)
+
+            print(green("Removing the temp-backup files remotely:"))
+            run('rm -r {0}'.format(backup_path))
+            run('rm {0}'.format(backup_zip_path))
+
+            print(green("Extracting the backup files to a temp directory"))
+            local('unzip {0} -d {1}'.format(backup_zip, self.local_settings['path']))
+
+            print(green("Removing the current database:"))
+            with cd(self.local_settings['path']):
+                self._local_env('python manage.py flush --noinput')
+
+                print(green("Installing the fixtures:"))
+                self._local_env('python manage.py loaddata {0}'.format(os.path.join(backup_dir, backup_json)))
+
+                print(green("Copying media files:"))
+                local('rm -r {0}'.format(self.local_settings['media_root']))
+                local('cp -r {0} {1}'.format(os.path.join(backup_dir, backup_media), self.local_settings['media_root']))
+
+                print(green("Removing the temp-backup files locally:"))
+                local('rm -r {0}'.format(backup_dir))
+                local('rm {0}'.format(backup_zip))
