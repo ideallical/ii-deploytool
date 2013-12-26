@@ -19,6 +19,7 @@ Remote requirements
 * python-devel
 * sudo
 * virtualenv (1.6+)
+* zip
 
 
 Local requirements
@@ -26,6 +27,7 @@ Local requirements
 
 * Fabric (1.8+)
 * Git (1.6+)
+* unzip
 
 
 Usage
