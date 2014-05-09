@@ -7,6 +7,7 @@ SETTINGS = {
         'user': '<user>',
         'host_string': '<host>',
         'vhost_path': '/var/www/pydocs/example-site/s-example-site',
+        'use_src': False,  # wheter manage.py is located in project_dir/src or not
         'virtualenv_path': '/home/user/virtualenvs/s-example-site',
         'url': 'http://staging.example.com',
         'supervisor_task_name': 'example_site_staging',
@@ -16,6 +17,7 @@ SETTINGS = {
         'user': '<user>',
         'host_string': '<host>',
         'vhost_path': '/var/www/pydocs/example-site/l-example-site',
+        'use_src': False,  # wheter manage.py is located in project_dir/src or not
         'virtualenv_path': '/home/user/virtualenvs/example-site',
         'url': 'http://example.com',
         'supervisor_task_name': 'example_site_live',

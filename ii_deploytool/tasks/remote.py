@@ -11,13 +11,15 @@ class RemoteTask(Task):
         'syncb_migrate': True,
         'resetsh': False,
         'compilejsi18n': False,
+        'branch': 'origin master',
+        'use_src': False,
     }
     local_settings = {
         'virtualenv_path': None,
     }
 
     def __init__(self, *args, **kwargs):
-        self.kwargs=kwargs
+        self.kwargs = kwargs
 
     def run(self, environment=None):
         if environment is None or environment not in self.kwargs['settings']:
@@ -35,6 +37,8 @@ class RemoteTask(Task):
             self.run_task()
 
     def _run_env(self, cmd):
+        if self.settings['use_src']:
+            cmd = cmd.replace('manage.py', 'src/manage.py')
         run("source {0}/bin/activate && {1}".format(self.settings['virtualenv_path'], cmd))
 
     def run_task(self):
@@ -53,7 +57,7 @@ class Deployment(RemoteTask):
         with cd(self.settings['vhost_path']):
             run("pwd")
             print(green("Pulling master from GitHub..."))
-            run("git pull origin master")
+            run("git pull {0}".format(self.settings['branch']))
 
             if self.settings['install_requirements']:
                 self.run_install_requirements()
