@@ -8,6 +8,9 @@ SETTINGS = {
         'host_string': '<host>',
         'vhost_path': '/var/www/pydocs/example-site/s-example-site',
         'use_src': False,  # wheter manage.py is located in project_dir/src or not
+        'less2css': False,
+        'location_less': '/var/www/pydocs/example-site/s-example-site/project/static/project/css/style.less',
+        'location_css': '/var/www/pydocs/example-site/s-example-site/project/static/project/css/style.css',
         'virtualenv_path': '/home/user/virtualenvs/s-example-site',
         'url': 'http://staging.example.com',
         'supervisor_task_name': 'example_site_staging',
@@ -18,6 +21,9 @@ SETTINGS = {
         'host_string': '<host>',
         'vhost_path': '/var/www/pydocs/example-site/l-example-site',
         'use_src': False,  # wheter manage.py is located in project_dir/src or not
+        'less2css': False,
+        'location_less': '/var/www/pydocs/example-site/l-example-site/project/static/project/css/style.less',
+        'location_css': '/var/www/pydocs/example-site/l-example-site/project/static/project/css/style.css',
         'virtualenv_path': '/home/user/virtualenvs/example-site',
         'url': 'http://example.com',
         'supervisor_task_name': 'example_site_live',

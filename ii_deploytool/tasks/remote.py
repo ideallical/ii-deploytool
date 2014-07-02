@@ -13,6 +13,9 @@ class RemoteTask(Task):
         'compilejsi18n': False,
         'branch': 'origin master',
         'use_src': False,
+        'less2css': False,
+        'location_less': 'project/static/project/css/style.less',
+        'location_css': 'project/static/project/css/style.css',
     }
     local_settings = {
         'virtualenv_path': None,
@@ -62,6 +65,9 @@ class Deployment(RemoteTask):
             if self.settings['install_requirements']:
                 self.run_install_requirements()
 
+            if self.settings['less2css']:
+                self.run_less2css()
+
             if self.settings['collect_static']:
                 self.run_collect_static()
 
@@ -96,6 +102,13 @@ class Deployment(RemoteTask):
     def run_resetsh(self):
         print(green("Executing reset script..."))
         self._run_env("./reset.sh")
+
+    def run_less2css(self):
+        print(green("Executing less2css..."))
+        self._run_env("lessc {0} > {1}".format(
+            self.settings['location_less'],
+            self.settings['location_css'],
+        ))
 
 
 class SuperVisorReread(RemoteTask):
