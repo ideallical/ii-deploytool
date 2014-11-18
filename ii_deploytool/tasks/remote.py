@@ -16,6 +16,7 @@ class RemoteTask(Task):
         'less2css': False,
         'location_less': 'project/static/project/css/style.less',
         'location_css': 'project/static/project/css/style.css',
+        'is_django_17_or_higher': False,
     }
     local_settings = {
         'virtualenv_path': None,
@@ -93,7 +94,10 @@ class Deployment(RemoteTask):
 
     def run_syncdb_migrate(self):
         print(green("Syncing the database..."))
-        self._run_env("python manage.py syncdb --migrate")
+        if self.settings['is_django_17_or_higher']:
+            self._run_env("python manage.py migrate")
+        else:
+            self._run_env("python manage.py syncdb --migrate")
 
     def run_compilejsi18n(self):
         print(green("Collecting static files for jsi18n..."))
