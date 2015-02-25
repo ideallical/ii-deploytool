@@ -17,6 +17,7 @@ class RemoteTask(Task):
         'location_less': 'project/static/project/css/style.less',
         'location_css': 'project/static/project/css/style.css',
         'is_django_17_or_higher': False,
+        'requirements_location': 'requirements.txt',
     }
     local_settings = {
         'virtualenv_path': None,
@@ -86,7 +87,7 @@ class Deployment(RemoteTask):
 
     def run_install_requirements(self):
         print(green("Installing requirements..."))
-        self._run_env("pip install -r requirements.txt")
+        self._run_env("pip install -r {0}".format(self.settings['requirements_location']))
 
     def run_collect_static(self):
         print(green("Collecting static files..."))
